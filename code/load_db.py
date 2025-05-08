@@ -4,7 +4,7 @@ def get_col_datatypes(fin):
     """
     Helper function for getting column data types!
     """
-    dr = csv.DictReader(fin, delimiter=';') # Comma is the default delimiter
+    dr = csv.DictReader(fin, delimiter=';') 
     field_types = {}
 
     for entry in dr:
