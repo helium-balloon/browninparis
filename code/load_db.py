@@ -1,7 +1,5 @@
 import csv, sqlite3
 
-# clean income data to only include IRIS starting with 75
-
 def get_col_datatypes(fin):
     """
     Helper function for getting column data types!
@@ -50,10 +48,12 @@ def csv_to_db(table, csv_file, attrs):
 
         # Keep the order of the columns name just as in the CSV
         fields = reader.fieldnames
-        print(fields)
         cols = []
         for f in fields:
-            cols.append("%s %s" % (f, dt[f]))
+            if f == 'IRIS':
+                cols.append("IRIS TEXT")
+            else:
+                cols.append("%s %s" % (f, dt[f]))
 
         # Find the indices of the columns we need to keep
         filtered_cols = []
@@ -80,10 +80,6 @@ def csv_to_db(table, csv_file, attrs):
 
         # Generate insert statements
         statement1 = "INSERT INTO %s VALUES(%s);" % (table, ','.join('?' * len(filtered_cols)))
-
-        print("Expected columns:", len(filtered_cols))
-        print("Row sample:", rows[0])
-        print("Row length:", len(rows[0]))
 
         cursor.executemany(statement1, rows)
         connection.commit()
