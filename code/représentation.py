@@ -24,7 +24,7 @@ with open(r"..\data\plan-de-voirie-emprises-espaces-verts.geojson", "r", encodin
     data_espaces_verts = json.load(f)
 
 # utiliser la meme carte
-iris_gdf = geo_gdf.to_crs(epsg=3857)
+iris_gdf = fusionner_gdf.to_crs(epsg=3857)
 vert_gdf = espaces_verts_gdf.to_crs(epsg=3857)
 
 iris_gdf["centroid"] = iris_gdf.geometry.centroid
@@ -32,10 +32,12 @@ iris_gdf["centroid"] = iris_gdf.geometry.centroid
 def min_distance_to_green_space(centroid, green_polygons):
     return green_polygons.distance(centroid).min()
 
-iris_gdf["dist_to_green"] = iris_gdf["centroid"].apply(lambda c: min_distance_to_green_space(c, vert_gdf.geometry))
-# iris_gdf.to_file("iris_avec_distances_vertes.geojson", driver="GeoJSON")
+iris_gdf["dist_to_green"] = iris_gdf["centroid"].apply(lambda c: round(min_distance_to_green_space(c, vert_gdf.geometry),2))
+iris_gdf = iris_gdf.drop(columns=["centroid"])
+iris_gdf.to_file("../data/iris_avec_distances_vertes.geojson", driver="GeoJSON")
+iris_gdf[["nom_iris", "code_iris", "DISP_MED21", "dist_to_green"]].to_csv("../data/iris_revenu_distance.csv", index=False)
 
-with open("iris_avec_distances_vertes.geojson", "r", encoding="utf-8") as f:
+with open("../data/iris_avec_distances_vertes.geojson", "r", encoding="utf-8") as f:
     data_iris_avec_distances_vertes = json.load(f)
 
 
@@ -43,9 +45,9 @@ m = folium.Map(location=[48.8566, 2.3522], zoom_start=12)
 
 # créer une carte avec choropleth
 folium.Choropleth(
-    geo_data=iris_gdf,
+    geo_data=fusionner_gdf,
     name="Médiane du revenu disponible par unité de consommation (en euros)",
-    data=iris_gdf,
+    data=df_revenu,
     columns=["code_iris", "DISP_MED21"],
     key_on="feature.properties.code_iris",
     scope='europe',
