@@ -40,7 +40,7 @@ def csv_to_db(table, csv_file, attrs):
     """
 
     # Institution CSV
-    with open(csv_file, mode='r', encoding="ISO-8859-1") as fin:
+    with open(csv_file, mode="r", encoding="utf-8-sig") as fin:
         # Prepare reading CSV
         dt = get_col_datatypes(fin)
         fin.seek(0)
@@ -52,6 +52,8 @@ def csv_to_db(table, csv_file, attrs):
         for f in fields:
             if f == 'IRIS':
                 cols.append("IRIS TEXT")
+            if f == 'dist_to_green':
+                cols.append("dist_to_green FLOAT")
             else:
                 cols.append("%s %s" % (f, dt[f]))
 
@@ -69,7 +71,7 @@ def csv_to_db(table, csv_file, attrs):
         for row in reader:
             rows.append([row[i] for i in indices if i < len(row)])
 
-        connection = sqlite3.connect("../stats_big.db")
+        connection = sqlite3.connect("stats_big.db")
         cursor = connection.cursor()
         cursor.execute("DROP TABLE IF EXISTS %s;" % table)
 
@@ -89,4 +91,4 @@ attr_distance = ["nom_iris" ,"code_iris", "DISP_MED21" ,"dist_to_green"]
 
 
 # csv_to_db("income", "data\BASE_TD_FILO_IRIS_2021_DISP.csv", attr_income)
-csv_to_db("income and distance", "../data/iris_revenu_distance.csv", attr_distance)
+csv_to_db("income_and_distance", "data\iris_revenu_distance.csv", attr_distance)

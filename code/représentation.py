@@ -2,7 +2,6 @@ import folium
 import json
 import pandas as pd
 import sqlite3
-import plotly.express as px
 import geopandas as gpd
 
 conn = sqlite3.connect("..\stats_big.db")
@@ -27,12 +26,13 @@ with open(r"..\data\plan-de-voirie-emprises-espaces-verts.geojson", "r", encodin
 iris_gdf = fusionner_gdf.to_crs(epsg=3857)
 vert_gdf = espaces_verts_gdf.to_crs(epsg=3857)
 
+# trouver la distance
 iris_gdf["centroid"] = iris_gdf.geometry.centroid
 
-def min_distance_to_green_space(centroid, green_polygons):
-    return green_polygons.distance(centroid).min()
+def min_distance_a_espace_vert(centroid, polygons_verts):
+    return polygons_verts.distance(centroid).min()
 
-iris_gdf["dist_to_green"] = iris_gdf["centroid"].apply(lambda c: round(min_distance_to_green_space(c, vert_gdf.geometry),2))
+iris_gdf["dist_to_green"] = iris_gdf["centroid"].apply(lambda c: round(min_distance_a_espace_vert(c, vert_gdf.geometry),2))
 iris_gdf = iris_gdf.drop(columns=["centroid"])
 iris_gdf.to_file("../data/iris_avec_distances_vertes.geojson", driver="GeoJSON")
 iris_gdf[["nom_iris", "code_iris", "DISP_MED21", "dist_to_green"]].to_csv("../data/iris_revenu_distance.csv", index=False)
