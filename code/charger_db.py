@@ -4,7 +4,7 @@ def get_col_datatypes(fin):
     """
     Helper function for getting column data types!
     """
-    dr = csv.DictReader(fin, delimiter=';') 
+    dr = csv.DictReader(fin) #, delimiter=';'
     field_types = {}
 
     for entry in dr:
@@ -44,7 +44,7 @@ def csv_to_db(table, csv_file, attrs):
         # Prepare reading CSV
         dt = get_col_datatypes(fin)
         fin.seek(0)
-        reader = csv.DictReader(fin, delimiter=';')
+        reader = csv.DictReader(fin) #, delimiter=';'
 
         # Keep the order of the columns name just as in the CSV
         fields = reader.fieldnames
@@ -64,12 +64,12 @@ def csv_to_db(table, csv_file, attrs):
             filtered_cols.append(cols[index])
 
         # Keep only the cells of data at these indices
-        reader = csv.reader(escaping_generator(fin), delimiter=';')
+        reader = csv.reader(escaping_generator(fin))  #, delimiter=';'
         rows = []
         for row in reader:
             rows.append([row[i] for i in indices if i < len(row)])
 
-        connection = sqlite3.connect("stats_big.db")
+        connection = sqlite3.connect("../stats_big.db")
         cursor = connection.cursor()
         cursor.execute("DROP TABLE IF EXISTS %s;" % table)
 
@@ -85,6 +85,8 @@ def csv_to_db(table, csv_file, attrs):
         connection.commit()
 
 attr_income = ["IRIS", "DISP_MED21"]
+attr_distance = ["nom_iris" ,"code_iris", "DISP_MED21" ,"dist_to_green"]
 
 
-csv_to_db("income", "data\BASE_TD_FILO_IRIS_2021_DISP.csv", attr_income)
+# csv_to_db("income", "data\BASE_TD_FILO_IRIS_2021_DISP.csv", attr_income)
+csv_to_db("income and distance", "../data/iris_revenu_distance.csv", attr_distance)
